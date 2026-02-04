@@ -7,67 +7,71 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Welcome, <span id="studentName"></span>!</h1>
+<h1>Welcome, <span id="studentName"></span>!</h1>
 
-  <h2>Your Tasks</h2>
-  <ul id="studentTasks"></ul>
+<h2>Your Tasks</h2>
+<ul id="studentTasks"></ul>
 
-  <h2>Your Points: <span id="pointsDisplay">0</span></h2>
+<h2>Your Points: <span id="pointsDisplay">0</span></h2>
 
-  <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
+<button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
 
-  <script src="script.js"></script>
-  <script>
-    const studentName = localStorage.getItem("name");
-    const officerCode = localStorage.getItem("officerCode");
-    document.getElementById("studentName").innerText = studentName;
+<script src="script.js"></script>
+<script>
+const studentName = localStorage.getItem("name");
+const officerCode = localStorage.getItem("officerCode");
+document.getElementById("studentName").innerText = studentName;
 
-    const studentTasks = document.getElementById("studentTasks");
-
-    const allTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    const tasks = allTasks.filter(t => t.officerCode === officerCode);
-
+function displayTasks() {
+    const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
+                  .filter(t => t.officerCode === officerCode);
     const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
     const studentUploads = uploads[studentName] || {};
 
-    function displayTasks() {
-        const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-        const studentUploads = uploads[studentName] || {};
-        studentTasks.innerHTML = tasks.map((task,index) => {
-            const done = studentUploads[index] ? "text-decoration: line-through;" : "";
-            return `<li style="${done}">
-                <b>${task.title}</b> - ${task.desc} (${task.points} pts)
-                <input type="file" accept="image/*" onchange="uploadPhoto(event, ${index})">
-            </li>`;
-        }).join('');
-    }
+    document.getElementById("studentTasks").innerHTML = tasks.map((task,index) => {
+        const done = studentUploads[index] ? "text-decoration: line-through;" : "";
+        return `<li style="${done}">
+            <b>${task.title}</b> - ${task.desc} (${task.points} pts)
+            <input type="file" accept="image/*" onchange="uploadPhoto(event, ${index})">
+        </li>`;
+    }).join('');
 
-    function uploadPhoto(event,index) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function() {
-            let uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-            uploads[studentName] = uploads[studentName] || {};
-            uploads[studentName][index] = reader.result;
-            localStorage.setItem("uploads", JSON.stringify(uploads));
-            displayTasks();
-            updatePoints();
-        }
-        reader.readAsDataURL(file);
-    }
-
-    function updatePoints() {
-        const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-        const studentUploads = uploads[studentName] || {};
-        const points = Object.keys(studentUploads).reduce((sum, taskIndex) => {
-            return sum + tasks[taskIndex].points;
-        },0);
-        document.getElementById("pointsDisplay").innerText = points;
-    }
-
-    displayTasks();
     updatePoints();
-  </script>
+}
+
+function uploadPhoto(event,index) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+        let uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+        uploads[studentName] = uploads[studentName] || {};
+        uploads[studentName][index] = reader.result;
+        localStorage.setItem("uploads", JSON.stringify(uploads));
+
+        // Update student's points in persistent students array
+        let students = JSON.parse(localStorage.getItem("students") || "[]");
+        let student = students.find(s => s.name === studentName && s.officerCode === officerCode);
+        if(student){
+            const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
+                          .filter(t => t.officerCode === officerCode);
+            const points = Object.keys(uploads[studentName]).reduce((sum, i) => sum + (tasks[i]?.points||0),0);
+            student.points = points;
+            localStorage.setItem("students", JSON.stringify(students));
+        }
+
+        displayTasks();
+    }
+    reader.readAsDataURL(file);
+}
+
+function updatePoints() {
+    const students = JSON.parse(localStorage.getItem("students") || "[]");
+    const student = students.find(s => s.name === studentName && s.officerCode === officerCode);
+    document.getElementById("pointsDisplay").innerText = student ? student.points : 0;
+}
+
+displayTasks();
+</script>
 </body>
 </html>
