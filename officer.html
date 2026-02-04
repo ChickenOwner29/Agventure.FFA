@@ -28,6 +28,7 @@
 const studentCode = localStorage.getItem("studentCode");
 document.getElementById("studentCodeDisplay").innerText = studentCode;
 
+// Create a new task
 function createTask() {
     const title = document.getElementById("taskTitle").value;
     const desc = document.getElementById("taskDesc").value;
@@ -46,6 +47,7 @@ function createTask() {
     updateClassSize();
 }
 
+// Display all tasks for this officer
 function displayTasks() {
     const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
                     .filter(t => t.officerCode === studentCode);
@@ -53,12 +55,14 @@ function displayTasks() {
         `<li>${t.title} - ${t.desc} (${t.points} pts)</li>`).join('');
 }
 
+// Update the number of students in this class
 function updateClassSize() {
     const students = JSON.parse(localStorage.getItem("students") || "[]")
                         .filter(s => s.officerCode === studentCode);
     document.getElementById("classSize").innerText = students.length;
 }
 
+// Initial display
 displayTasks();
 updateClassSize();
 </script>
