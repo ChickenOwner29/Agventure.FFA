@@ -21,22 +21,12 @@
 <h2>Existing Tasks</h2>
 <ul id="tasksList"></ul>
 
-<h2>Class QR Code</h2>
-<canvas id="qrcode"></canvas>
-
 <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="script.js"></script>
 <script>
 const studentCode = localStorage.getItem("studentCode");
 document.getElementById("studentCodeDisplay").innerText = studentCode;
-
-// Generate QR code for this class
-QRCode.toCanvas(document.getElementById('qrcode'),
-  `${window.location.origin}/index.html?officer=${studentCode}`,
-  function (error) { if(error) console.error(error); }
-);
 
 function createTask() {
     const title = document.getElementById("taskTitle").value;
