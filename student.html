@@ -14,6 +14,8 @@
 
   <h2>Your Points: <span id="pointsDisplay">0</span></h2>
 
+  <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
+
   <script src="script.js"></script>
   <script>
     const studentName = localStorage.getItem("name");
@@ -22,19 +24,24 @@
 
     const studentTasks = document.getElementById("studentTasks");
 
-    // Get tasks linked to this officer
     const allTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     const tasks = allTasks.filter(t => t.officerCode === officerCode);
 
-    // Display tasks
-    studentTasks.innerHTML = tasks.map((task,index) => `
-        <li>
-          <b>${task.title}</b> - ${task.desc} (${task.points} pts)
-          <input type="file" accept="image/*" onchange="uploadPhoto(event, ${index})">
-        </li>
-    `).join('');
+    const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+    const studentUploads = uploads[studentName] || {};
 
-    // Handle uploads
+    function displayTasks() {
+        const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+        const studentUploads = uploads[studentName] || {};
+        studentTasks.innerHTML = tasks.map((task,index) => {
+            const done = studentUploads[index] ? "text-decoration: line-through;" : "";
+            return `<li style="${done}">
+                <b>${task.title}</b> - ${task.desc} (${task.points} pts)
+                <input type="file" accept="image/*" onchange="uploadPhoto(event, ${index})">
+            </li>`;
+        }).join('');
+    }
+
     function uploadPhoto(event,index) {
         const file = event.target.files[0];
         if (!file) return;
@@ -42,23 +49,24 @@
         reader.onload = function() {
             let uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
             uploads[studentName] = uploads[studentName] || {};
-            uploads[studentName][index] = reader.result; // store base64
+            uploads[studentName][index] = reader.result;
             localStorage.setItem("uploads", JSON.stringify(uploads));
-            alert("Photo uploaded!");
+            displayTasks();
             updatePoints();
         }
         reader.readAsDataURL(file);
     }
 
     function updatePoints() {
-        let uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+        const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
         const studentUploads = uploads[studentName] || {};
         const points = Object.keys(studentUploads).reduce((sum, taskIndex) => {
             return sum + tasks[taskIndex].points;
-        }, 0);
+        },0);
         document.getElementById("pointsDisplay").innerText = points;
     }
 
+    displayTasks();
     updatePoints();
   </script>
 </body>
