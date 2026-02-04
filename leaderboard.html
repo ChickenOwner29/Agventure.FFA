@@ -7,15 +7,52 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Your Points</h1>
-<div id="pointsDisplay"></div>
+<h1>Leaderboard</h1>
+<p>Officer code: <b id="officerCodeDisplay"></b></p>
 
+<table border="1" style="width:100%; text-align:center;">
+  <thead>
+    <tr>
+      <th>Student</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody id="leaderboardBody"></tbody>
+</table>
+
+<script src="script.js"></script>
 <script>
-    const name = localStorage.getItem("name");
-    const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-    const userPoints = uploads[name] ? Object.keys(uploads[name]).length * 10 : 0;
+const role = localStorage.getItem("role");
+const officerCode = role === "officer" ? localStorage.getItem("studentCode") : localStorage.getItem("officerCode");
+document.getElementById("officerCodeDisplay").innerText = officerCode;
 
-    document.getElementById("pointsDisplay").innerText = `${userPoints} points`;
+function getLeaderboard() {
+    const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+    const tasks = JSON.parse(localStorage.getItem("tasks") || "[]").filter(t => t.officerCode === officerCode);
+
+    const students = Object.keys(uploads);
+
+    const leaderboard = students.map(name => {
+        const studentUploads = uploads[name] || {};
+        const points = Object.keys(studentUploads).reduce((sum, index) => {
+            return sum + (tasks[index]?.points || 0);
+        },0);
+        return { name, points };
+    });
+
+    leaderboard.sort((a,b) => b.points - a.points);
+    return leaderboard;
+}
+
+function displayLeaderboard() {
+    const lbBody = document.getElementById("leaderboardBody");
+    const leaderboard = getLeaderboard();
+    lbBody.innerHTML = leaderboard.map(item =>
+        `<tr><td>${item.name}</td><td>${item.points}</td></tr>`
+    ).join('');
+}
+
+displayLeaderboard();
 </script>
 </body>
 </html>
