@@ -9,15 +9,14 @@
 <body>
 <h1>Leaderboard</h1>
 <p>Officer code: <b id="officerCodeDisplay"></b></p>
-
 <table border="1" style="width:100%; text-align:center;">
-  <thead>
-    <tr>
-      <th>Student</th>
-      <th>Points</th>
-    </tr>
-  </thead>
-  <tbody id="leaderboardBody"></tbody>
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Points</th>
+        </tr>
+    </thead>
+    <tbody id="leaderboardBody"></tbody>
 </table>
 
 <script src="script.js"></script>
@@ -26,30 +25,13 @@ const role = localStorage.getItem("role");
 const officerCode = role === "officer" ? localStorage.getItem("studentCode") : localStorage.getItem("officerCode");
 document.getElementById("officerCodeDisplay").innerText = officerCode;
 
-function getLeaderboard() {
-    const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-    const tasks = JSON.parse(localStorage.getItem("tasks") || "[]").filter(t => t.officerCode === officerCode);
-
-    const students = Object.keys(uploads);
-
-    const leaderboard = students.map(name => {
-        const studentUploads = uploads[name] || {};
-        const points = Object.keys(studentUploads).reduce((sum, index) => {
-            return sum + (tasks[index]?.points || 0);
-        },0);
-        return { name, points };
-    });
-
-    leaderboard.sort((a,b) => b.points - a.points);
-    return leaderboard;
-}
-
 function displayLeaderboard() {
-    const lbBody = document.getElementById("leaderboardBody");
-    const leaderboard = getLeaderboard();
-    lbBody.innerHTML = leaderboard.map(item =>
-        `<tr><td>${item.name}</td><td>${item.points}</td></tr>`
-    ).join('');
+    const students = JSON.parse(localStorage.getItem("students") || "[]")
+                     .filter(s => s.officerCode === officerCode)
+                     .sort((a,b)=>b.points - a.points);
+
+    document.getElementById("leaderboardBody").innerHTML = students.map(s =>
+        `<tr><td>${s.name}</td><td>${s.points}</td></tr>`).join('');
 }
 
 displayLeaderboard();
