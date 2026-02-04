@@ -1,27 +1,33 @@
-// Generate random 6-character student code
+// Generate a 6-character student code
 function generateStudentCode() {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
+// Login function
 function login() {
     const name = document.getElementById("name").value.trim();
     const codeInput = document.getElementById("signupCode").value.trim();
     const role = document.getElementById("role").value;
 
-    if (!name) {
-        alert("Please enter your name!");
-        return;
-    }
+    if (!name) { alert("Please enter your name!"); return; }
+
+    // Retrieve saved officers and students
+    let officers = JSON.parse(localStorage.getItem("officers") || "[]");
+    let students = JSON.parse(localStorage.getItem("students") || "[]");
 
     if (role === "officer") {
-        // Officer login → generate a student code
-        const studentCode = generateStudentCode();
-        alert(`Welcome ${name}! Your students can use this code to log in: ${studentCode}`);
+        // Check if officer already exists
+        let existing = officers.find(o => o.name === name);
+        let studentCode;
+        if (existing) {
+            studentCode = existing.studentCode; // reuse code
+        } else {
+            studentCode = generateStudentCode();
+            officers.push({ name, studentCode });
+            localStorage.setItem("officers", JSON.stringify(officers));
+        }
 
-        let officers = JSON.parse(localStorage.getItem("officers") || "[]");
-        officers.push({ name, studentCode });
-        localStorage.setItem("officers", JSON.stringify(officers));
-
+        alert(`Welcome Officer ${name}! Your students can use this code: ${studentCode}`);
         localStorage.setItem("role", "officer");
         localStorage.setItem("name", name);
         localStorage.setItem("studentCode", studentCode);
@@ -29,12 +35,14 @@ function login() {
         window.location.href = "officer.html";
     } else {
         // Student login → validate code
-        let officers = JSON.parse(localStorage.getItem("officers") || "[]");
         const validOfficer = officers.find(o => o.studentCode === codeInput);
+        if (!validOfficer) { alert("Invalid code! Ask your officer for the correct code."); return; }
 
-        if (!validOfficer) {
-            alert("Invalid code! Ask your officer for the correct code.");
-            return;
+        // Check if student already exists
+        let existingStudent = students.find(s => s.name === name && s.officerCode === codeInput);
+        if (!existingStudent) {
+            students.push({ name, officerCode: codeInput, points: 0 });
+            localStorage.setItem("students", JSON.stringify(students));
         }
 
         localStorage.setItem("role", "student");
