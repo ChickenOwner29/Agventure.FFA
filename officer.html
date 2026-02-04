@@ -7,66 +7,59 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Officer Dashboard</h1>
-  <p>Your student code: <b id="studentCodeDisplay"></b></p>
-  <h2>Class Size: <span id="classSize">0</span></h2>
+<h1>Officer Dashboard</h1>
+<p>Your student code: <b id="studentCodeDisplay"></b></p>
+<h2>Class Size: <span id="classSize">0</span></h2>
 
-  <div class="task-creator">
+<div class="task-creator">
     <input type="text" id="taskTitle" placeholder="Task Title">
     <textarea id="taskDesc" placeholder="Task Description"></textarea>
     <input type="number" id="taskPoints" placeholder="Points" value="10">
     <button onclick="createTask()">Add Task</button>
-  </div>
+</div>
 
-  <h2>Existing Tasks</h2>
-  <ul id="tasksList"></ul>
+<h2>Existing Tasks</h2>
+<ul id="tasksList"></ul>
 
-  <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
+<button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
 
-  <script src="script.js"></script>
-  <script>
-    const studentCode = localStorage.getItem("studentCode");
-    document.getElementById("studentCodeDisplay").innerText = studentCode;
+<script src="script.js"></script>
+<script>
+const studentCode = localStorage.getItem("studentCode");
+document.getElementById("studentCodeDisplay").innerText = studentCode;
 
-    const tasksList = document.getElementById("tasksList");
+function createTask() {
+    const title = document.getElementById("taskTitle").value;
+    const desc = document.getElementById("taskDesc").value;
+    const points = parseInt(document.getElementById("taskPoints").value) || 10;
+    if (!title || !desc) return alert("Enter task title and description.");
 
-    function createTask() {
-        const title = document.getElementById("taskTitle").value;
-        const desc = document.getElementById("taskDesc").value;
-        const points = parseInt(document.getElementById("taskPoints").value) || 10;
-        if (!title || !desc) return alert("Enter task title and description.");
-
-        let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-        tasks.push({
-            title,
-            desc,
-            points,
-            officerCode: studentCode
-        });
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        displayTasks();
-        document.getElementById("taskTitle").value = "";
-        document.getElementById("taskDesc").value = "";
-        document.getElementById("taskPoints").value = 10;
-        updateClassSize();
-    }
-
-    function displayTasks() {
-        const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
-            .filter(t => t.officerCode === studentCode);
-        tasksList.innerHTML = tasks.map(t => 
-            `<li>${t.title} - ${t.desc} (${t.points} pts)</li>`).join('');
-    }
-
-    function updateClassSize() {
-        const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-        const students = Object.keys(uploads);
-        document.getElementById("classSize").innerText = students.length;
-    }
-
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+    tasks.push({ title, desc, points, officerCode: studentCode });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
     displayTasks();
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskDesc").value = "";
+    document.getElementById("taskPoints").value = 10;
+
     updateClassSize();
-  </script>
+}
+
+function displayTasks() {
+    const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
+                    .filter(t => t.officerCode === studentCode);
+    document.getElementById("tasksList").innerHTML = tasks.map(t => 
+        `<li>${t.title} - ${t.desc} (${t.points} pts)</li>`).join('');
+}
+
+function updateClassSize() {
+    const students = JSON.parse(localStorage.getItem("students") || "[]")
+                        .filter(s => s.officerCode === studentCode);
+    document.getElementById("classSize").innerText = students.length;
+}
+
+displayTasks();
+updateClassSize();
+</script>
 </body>
 </html>
-
