@@ -9,8 +9,9 @@
 <body>
   <h1>Officer Dashboard</h1>
   <p>Your student code: <b id="studentCodeDisplay"></b></p>
+  <h2>Class Size: <span id="classSize">0</span></h2>
 
-  <div>
+  <div class="task-creator">
     <input type="text" id="taskTitle" placeholder="Task Title">
     <textarea id="taskDesc" placeholder="Task Description"></textarea>
     <input type="number" id="taskPoints" placeholder="Points" value="10">
@@ -19,6 +20,8 @@
 
   <h2>Existing Tasks</h2>
   <ul id="tasksList"></ul>
+
+  <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
 
   <script src="script.js"></script>
   <script>
@@ -45,16 +48,25 @@
         document.getElementById("taskTitle").value = "";
         document.getElementById("taskDesc").value = "";
         document.getElementById("taskPoints").value = 10;
+        updateClassSize();
     }
 
     function displayTasks() {
         const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
             .filter(t => t.officerCode === studentCode);
-        tasksList.innerHTML = tasks.map((t,i) =>
+        tasksList.innerHTML = tasks.map(t => 
             `<li>${t.title} - ${t.desc} (${t.points} pts)</li>`).join('');
     }
 
+    function updateClassSize() {
+        const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+        const students = Object.keys(uploads);
+        document.getElementById("classSize").innerText = students.length;
+    }
+
     displayTasks();
+    updateClassSize();
   </script>
 </body>
 </html>
+
