@@ -1,5 +1,5 @@
+// Generate random 6-character student code
 function generateStudentCode() {
-    // Generate a 6-character alphanumeric code
     return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
@@ -14,11 +14,10 @@ function login() {
     }
 
     if (role === "officer") {
-        // Officer logs in → generate a new code for students
+        // Officer login → generate a student code
         const studentCode = generateStudentCode();
         alert(`Welcome ${name}! Your students can use this code to log in: ${studentCode}`);
 
-        // Save the officer and their student code
         let officers = JSON.parse(localStorage.getItem("officers") || "[]");
         officers.push({ name, studentCode });
         localStorage.setItem("officers", JSON.stringify(officers));
@@ -29,7 +28,7 @@ function login() {
 
         window.location.href = "officer.html";
     } else {
-        // Student logs in → check if code matches an officer
+        // Student login → validate code
         let officers = JSON.parse(localStorage.getItem("officers") || "[]");
         const validOfficer = officers.find(o => o.studentCode === codeInput);
 
@@ -38,7 +37,6 @@ function login() {
             return;
         }
 
-        // Save student info
         localStorage.setItem("role", "student");
         localStorage.setItem("name", name);
         localStorage.setItem("officerCode", codeInput);
