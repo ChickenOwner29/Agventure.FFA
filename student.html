@@ -19,7 +19,16 @@
 <script src="script.js"></script>
 <script>
 const studentName = localStorage.getItem("name");
-const officerCode = localStorage.getItem("officerCode");
+let officerCode = localStorage.getItem("officerCode");
+
+// If QR code provided officer code, use it
+const urlParams = new URLSearchParams(window.location.search);
+const officerFromQR = urlParams.get('officer');
+if(officerFromQR) {
+    officerCode = officerFromQR;
+    localStorage.setItem("officerCode", officerCode);
+}
+
 document.getElementById("studentName").innerText = studentName;
 
 function displayTasks() {
@@ -49,14 +58,13 @@ function uploadPhoto(event,index) {
         uploads[studentName][index] = reader.result;
         localStorage.setItem("uploads", JSON.stringify(uploads));
 
-        // Update student's points in persistent students array
+        // Update student points persistently
         let students = JSON.parse(localStorage.getItem("students") || "[]");
         let student = students.find(s => s.name === studentName && s.officerCode === officerCode);
         if(student){
             const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
                           .filter(t => t.officerCode === officerCode);
-            const points = Object.keys(uploads[studentName]).reduce((sum, i) => sum + (tasks[i]?.points||0),0);
-            student.points = points;
+            student.points = Object.keys(uploads[studentName]).reduce((sum,i)=>sum+(tasks[i]?.points||0),0);
             localStorage.setItem("students", JSON.stringify(students));
         }
 
