@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard - AgVenture</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome, <span id="studentName"></span>!</h1>
+
+  <h2>Your Tasks</h2>
+  <ul id="studentTasks"></ul>
+
+  <script src="script.js"></script>
+  <script>
+    const studentName = localStorage.getItem("name");
+    document.getElementById("studentName").innerText = studentName;
+
+    const studentTasks = document.getElementById("studentTasks");
+    const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+    studentTasks.innerHTML = tasks.map((task, i) => `
+      <li>
+        <b>${task.title}</b> - ${task.desc}
+        <input type="file" accept="image/*" onchange="uploadPhoto(event, ${i})">
+      </li>
+    `).join('');
+
+    function uploadPhoto(event, index) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function() {
+            let uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+            uploads[studentName] = uploads[studentName] || {};
+            uploads[studentName][index] = reader.result; // store base64 image
+            localStorage.setItem("uploads", JSON.stringify(uploads));
+            alert("Photo uploaded!");
+        }
+        reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
