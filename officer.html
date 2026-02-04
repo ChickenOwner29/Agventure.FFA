@@ -8,7 +8,7 @@
 </head>
 <body>
 <h1>Officer Dashboard</h1>
-<p>Your student code: <b id="studentCodeDisplay"></b></p>
+<p>Your class code: <b id="studentCodeDisplay"></b></p>
 <h2>Class Size: <span id="classSize">0</span></h2>
 
 <div class="task-creator">
@@ -21,12 +21,22 @@
 <h2>Existing Tasks</h2>
 <ul id="tasksList"></ul>
 
+<h2>Class QR Code</h2>
+<canvas id="qrcode"></canvas>
+
 <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="script.js"></script>
 <script>
 const studentCode = localStorage.getItem("studentCode");
 document.getElementById("studentCodeDisplay").innerText = studentCode;
+
+// Generate QR code for this class
+QRCode.toCanvas(document.getElementById('qrcode'),
+  `${window.location.origin}/index.html?officer=${studentCode}`,
+  function (error) { if(error) console.error(error); }
+);
 
 function createTask() {
     const title = document.getElementById("taskTitle").value;
@@ -38,6 +48,7 @@ function createTask() {
     tasks.push({ title, desc, points, officerCode: studentCode });
     localStorage.setItem("tasks", JSON.stringify(tasks));
     displayTasks();
+
     document.getElementById("taskTitle").value = "";
     document.getElementById("taskDesc").value = "";
     document.getElementById("taskPoints").value = 10;
