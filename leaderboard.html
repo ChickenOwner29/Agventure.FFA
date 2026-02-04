@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard - AgVenture</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Your Points</h1>
+<div id="pointsDisplay"></div>
+
+<script>
+    const name = localStorage.getItem("name");
+    const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
+    const userPoints = uploads[name] ? Object.keys(uploads[name]).length * 10 : 0;
+
+    document.getElementById("pointsDisplay").innerText = `${userPoints} points`;
+</script>
+</body>
+</html>
