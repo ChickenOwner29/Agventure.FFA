@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", e => {
       e.preventDefault();
 
-      // ✅ FIX: explicitly grab inputs
+      // grab inputs
       const nameInput = document.getElementById("name");
       const roleInput = document.getElementById("role");
       const codeInput = document.getElementById("classCode");
@@ -33,17 +33,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Save session
+      // save session
       localStorage.setItem("currentUser", name);
       localStorage.setItem("currentRole", role);
       localStorage.setItem("currentCode", code);
 
-      // Initialize class data if needed
       if (!localStorage.getItem(code)) {
-        localStorage.setItem(code, JSON.stringify({
-          tasks: [],
-          students: []
-        }));
+        localStorage.setItem(code, JSON.stringify({ tasks: [], students: [] }));
       }
 
       const data = JSON.parse(localStorage.getItem(code));
@@ -53,17 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
           alert("Please select your grade.");
           return;
         }
-
         if (!data.students.find(s => s.name === name)) {
-          data.students.push({
-            name,
-            grade,
-            points: 0,
-            completed: [],
-            photos: {}
-          });
+          data.students.push({ name, grade, points: 0, completed: [], photos: {} });
         }
-
         localStorage.setItem(code, JSON.stringify(data));
         window.location.href = "student.html";
       } else {
@@ -73,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================
-     OFFICER DASHBOARD
+     OFFICER
   ===================== */
   window.addTask = function () {
     const code = localStorage.getItem("currentCode");
@@ -105,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskList = document.getElementById("taskList");
     if (taskList) {
       taskList.innerHTML = "";
-      data.tasks.forEach((t, i) => {
+      data.tasks.forEach(t => {
         const li = document.createElement("li");
         li.textContent = `${t.title} (${t.points} pts)`;
         taskList.appendChild(li);
@@ -134,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================
-     STUDENT TASKS
+     STUDENT
   ===================== */
   function loadStudent() {
     const code = localStorage.getItem("currentCode");
