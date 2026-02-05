@@ -1,39 +1,38 @@
 body {
-  background-color: #fff6cc;
   font-family: Arial, sans-serif;
-  color: #003087;
-  padding: 20px;
-}
-
-h1, h2, h3 {
-  color: #003087;
-}
-
-input, select, button {
-  display: block;
-  margin: 10px 0;
-  padding: 8px;
-}
-
-button {
-  background-color: #003087;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-ul {
-  list-style: none;
+  background-color: #FFF9C4; /* light yellow */
+  color: #0033A0; /* National Blue */
+  margin: 0;
   padding: 0;
 }
 
-li.completed {
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1, h2 {
+  text-align: center;
+}
+
+input, select, button {
+  padding: 8px;
+  margin: 5px 0;
+}
+
+.completed {
   text-decoration: line-through;
-  opacity: 0.6;
+  color: gray;
+}
+
+#photoSubmissions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .photoCard {
-  border: 1px solid #003087;
-  padding: 10px;
-  margin: 10px 0;
+  border: 1px solid #0033A0;
+  padding: 5px;
 }
