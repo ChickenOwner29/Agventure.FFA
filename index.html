@@ -11,27 +11,44 @@
 
 <form id="loginForm">
 
-  <label>Name</label>
-  <input type="text" id="name" required>
+  <label>
+    Name:
+    <input type="text" id="name" required>
+  </label>
 
-  <label>Role</label>
-  <select id="role" required>
-    <option value="">Select</option>
-    <option value="officer">Officer</option>
-    <option value="student">Student</option>
-  </select>
+  <br><br>
 
-  <label>Class Code</label>
-  <input type="text" id="classCode" required>
-
-  <div id="gradeBox" style="display:none;">
-    <label>Grade</label>
-    <select id="grade">
-      <option value="6">6th Grade</option>
-      <option value="7">7th Grade</option>
-      <option value="8">8th Grade</option>
+  <label>
+    Role:
+    <select id="role" required>
+      <option value="">Select role</option>
+      <option value="student">Student</option>
+      <option value="officer">Officer</option>
     </select>
+  </label>
+
+  <br><br>
+
+  <!-- STUDENT ONLY -->
+  <div id="gradeBox" style="display:none;">
+    <label>
+      Grade:
+      <select id="grade">
+        <option value="">Select grade</option>
+        <option value="6">6th Grade</option>
+        <option value="7">7th Grade</option>
+        <option value="8">8th Grade</option>
+      </select>
+    </label>
+    <br><br>
   </div>
+
+  <label>
+    Class Code:
+    <input type="text" id="classCode" required>
+  </label>
+
+  <br><br>
 
   <button type="submit">Login</button>
 
