@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Officer Dashboard</title>
+  <title>Officer Dashboard - AgVenture</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
+  <div class="container">
+    <h1>Officer Dashboard</h1>
+    <p>Class Code: <span id="classCodeDisplay"></span></p>
 
-<h1>Officer Dashboard</h1>
-<h2>Class Code: <span id="classCodeDisplay"></span></h2>
+    <h2>Add Task</h2>
+    <input type="text" id="taskTitle" placeholder="Task Name">
+    <input type="number" id="taskPoints" placeholder="Points">
+    <button onclick="addTask()">Add Task</button>
 
-<label>Task Name:</label>
-<input id="taskTitle" placeholder="Task name">
+    <h2>Tasks</h2>
+    <ul id="taskList"></ul>
 
-<label>Points:</label>
-<input id="taskPoints" type="number" placeholder="Points">
+    <h2>Student Photo Submissions</h2>
+    <div id="photoSubmissions"></div>
 
-<button onclick="addTask()">Add Task</button>
-
-<h3>Tasks</h3>
-<ul id="taskList"></ul>
-
-<h3>Photo Submissions</h3>
-<div id="photoSubmissions"></div>
-
-<a href="leaderboard.html">View Leaderboard</a>
-
-<script src="script.js"></script>
+    <h2>Leaderboard</h2>
+    <ul id="grade6"></ul>
+    <ul id="grade7"></ul>
+    <ul id="grade8"></ul>
+  </div>
 </body>
 </html>
