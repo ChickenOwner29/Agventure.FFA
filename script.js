@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!code) return;
 
     var data = JSON.parse(localStorage.getItem(code));
-    ["6","7","8"].forEach(function(grade){
+    ["6", "7", "8"].forEach(function(grade){
       var list = document.getElementById("grade"+grade);
       if (!list) return;
       list.innerHTML = "";
