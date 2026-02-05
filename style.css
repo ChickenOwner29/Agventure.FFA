@@ -1,22 +1,39 @@
 body {
-    font-family: Arial, sans-serif;
-    max-width: 700px;
-    margin: auto;
-    padding: 20px;
-    background-color: #fff9cc; /* light yellow */
-    color: #0033a0; /* National Blue */
+  background-color: #fff6cc;
+  font-family: Arial, sans-serif;
+  color: #003087;
+  padding: 20px;
 }
-h1, h2, p { text-align: center; }
-input, textarea, select, button {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    border: 1px solid #0033a0;
+
+h1, h2, h3 {
+  color: #003087;
 }
-ul { list-style: none; padding: 0; }
-li { margin: 10px 0; }
-button { cursor: pointer; background-color: #0033a0; color: #fff; border: none; }
-table { border-collapse: collapse; margin: 20px 0; }
-th, td { padding: 10px; border: 1px solid #0033a0; }
-.task-creator { margin: 20px 0; }
+
+input, select, button {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+}
+
+button {
+  background-color: #003087;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li.completed {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.photoCard {
+  border: 1px solid #003087;
+  padding: 10px;
+  margin: 10px 0;
+}
