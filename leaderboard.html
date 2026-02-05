@@ -1,40 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leaderboard - AgVenture</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Leaderboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <h1>Leaderboard</h1>
-<p>Officer code: <b id="officerCodeDisplay"></b></p>
-<table border="1" style="width:100%; text-align:center;">
-    <thead>
-        <tr>
-            <th>Student</th>
-            <th>Points</th>
-        </tr>
-    </thead>
-    <tbody id="leaderboardBody"></tbody>
-</table>
 
-<script src="script.js"></script>
-<script>
-const role = localStorage.getItem("role");
-const officerCode = role === "officer" ? localStorage.getItem("studentCode") : localStorage.getItem("officerCode");
-document.getElementById("officerCodeDisplay").innerText = officerCode;
+<h2>6th Grade</h2>
+<ul id="grade6"></ul>
 
-function displayLeaderboard() {
-    const students = JSON.parse(localStorage.getItem("students") || "[]")
-                     .filter(s => s.officerCode === officerCode)
-                     .sort((a,b)=>b.points - a.points);
+<h2>7th Grade</h2>
+<ul id="grade7"></ul>
 
-    document.getElementById("leaderboardBody").innerHTML = students.map(s =>
-        `<tr><td>${s.name}</td><td>${s.points}</td></tr>`).join('');
-}
+<h2>8th Grade</h2>
+<ul id="grade8"></ul>
 
-displayLeaderboard();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
