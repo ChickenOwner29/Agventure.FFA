@@ -1,70 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Student Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Student Tasks</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Welcome, <span id="studentName"></span></h1>
+<h1>Your Tasks</h1>
+<ul id="studentTasks"></ul>
 
-<ul id="tasks"></ul>
+<a href="leaderboard.html">View Leaderboard</a>
 
-<h2>Your Points: <span id="points">0</span></h2>
-
-<button onclick="location.href='leaderboard.html'">Leaderboard</button>
-
-<script>
-const studentName = localStorage.getItem("name");
-const officerCode = localStorage.getItem("officerCode");
-document.getElementById("studentName").innerText = studentName;
-
-function loadTasks() {
-    const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
-        .filter(t => t.officerCode === officerCode);
-
-    const uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-    const mine = uploads[studentName] || {};
-
-    document.getElementById("tasks").innerHTML = tasks.map((t, i) => `
-        <li style="${mine[i] ? 'text-decoration:line-through;' : ''}">
-            ${t.title} (${t.points} pts)
-            <input type="file" accept="image/*"
-             onchange="upload(this, ${i})">
-        </li>
-    `).join("");
-
-    updatePoints();
-}
-
-function upload(input, index) {
-    const reader = new FileReader();
-    reader.onload = () => {
-        let uploads = JSON.parse(localStorage.getItem("uploads") || "{}");
-        uploads[studentName] = uploads[studentName] || {};
-        uploads[studentName][index] = reader.result;
-        localStorage.setItem("uploads", JSON.stringify(uploads));
-        loadTasks();
-    };
-    reader.readAsDataURL(input.files[0]);
-}
-
-function updatePoints() {
-    let students = JSON.parse(localStorage.getItem("students") || "[]");
-    let s = students.find(x => x.name === studentName && x.officerCode === officerCode);
-    const uploads = JSON.parse(localStorage.getItem("uploads") || {});
-    const tasks = JSON.parse(localStorage.getItem("tasks") || [])
-        .filter(t => t.officerCode === officerCode);
-
-    if (s && uploads[studentName]) {
-        s.points = Object.keys(uploads[studentName])
-            .reduce((sum, i) => sum + (tasks[i]?.points || 0), 0);
-        localStorage.setItem("students", JSON.stringify(students));
-        document.getElementById("points").innerText = s.points;
-    }
-}
-
-loadTasks();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
