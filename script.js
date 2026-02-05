@@ -1,153 +1,214 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-/* ===== LOGIN ===== */
-const loginForm = document.getElementById("loginForm");
-const role = document.getElementById("role");
-const gradeBox = document.getElementById("gradeBox");
+  /* =====================
+     LOGIN
+  ===================== */
+  const loginForm = document.getElementById("loginForm");
+  const roleSelect = document.getElementById("role");
+  const gradeBox = document.getElementById("gradeBox");
 
-if (role) {
-  role.onchange = () => {
-    gradeBox.style.display = role.value === "student" ? "block" : "none";
-  };
-}
+  if (roleSelect) {
+    roleSelect.addEventListener("change", () => {
+      if (gradeBox) {
+        gradeBox.style.display =
+          roleSelect.value === "student" ? "block" : "none";
+      }
+    });
+  }
 
-if (loginForm) {
-  loginForm.onsubmit = e => {
-    e.preventDefault();
+  if (loginForm) {
+    loginForm.addEventListener("submit", e => {
+      e.preventDefault();
 
-    const name = nameInput.value.trim();
-    const roleVal = role.value;
-    const code = classCode.value.trim();
-    const grade = document.getElementById("grade")?.value;
+      // ✅ FIX: explicitly grab inputs
+      const nameInput = document.getElementById("name");
+      const roleInput = document.getElementById("role");
+      const codeInput = document.getElementById("classCode");
+      const gradeInput = document.getElementById("grade");
 
-    if (!name || !roleVal || !code) return alert("Missing info");
+      const name = nameInput.value.trim();
+      const role = roleInput.value;
+      const code = codeInput.value.trim();
+      const grade = gradeInput ? gradeInput.value : null;
 
-    localStorage.setItem("currentUser", name);
-    localStorage.setItem("currentRole", roleVal);
-    localStorage.setItem("currentCode", code);
+      if (!name || !role || !code) {
+        alert("Please fill out all required fields.");
+        return;
+      }
 
-    if (!localStorage.getItem(code)) {
-      localStorage.setItem(code, JSON.stringify({ tasks: [], students: [] }));
+      // Save session
+      localStorage.setItem("currentUser", name);
+      localStorage.setItem("currentRole", role);
+      localStorage.setItem("currentCode", code);
+
+      // Initialize class data if needed
+      if (!localStorage.getItem(code)) {
+        localStorage.setItem(code, JSON.stringify({
+          tasks: [],
+          students: []
+        }));
+      }
+
+      const data = JSON.parse(localStorage.getItem(code));
+
+      if (role === "student") {
+        if (!grade) {
+          alert("Please select your grade.");
+          return;
+        }
+
+        if (!data.students.find(s => s.name === name)) {
+          data.students.push({
+            name,
+            grade,
+            points: 0,
+            completed: [],
+            photos: {}
+          });
+        }
+
+        localStorage.setItem(code, JSON.stringify(data));
+        window.location.href = "student.html";
+      } else {
+        window.location.href = "officer.html";
+      }
+    });
+  }
+
+  /* =====================
+     OFFICER
+  ===================== */
+  window.addTask = function () {
+    const code = localStorage.getItem("currentCode");
+    if (!code) return;
+
+    const title = document.getElementById("taskTitle").value.trim();
+    const points = Number(document.getElementById("taskPoints").value);
+
+    if (!title || !points) {
+      alert("Enter task name and points.");
+      return;
     }
 
     const data = JSON.parse(localStorage.getItem(code));
+    data.tasks.push({ title, points });
+    localStorage.setItem(code, JSON.stringify(data));
 
-    if (roleVal === "student") {
-      if (!grade) return alert("Select grade");
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskPoints").value = "";
 
-      if (!data.students.find(s => s.name === name)) {
-        data.students.push({ name, grade, points: 0, completed: [], photos: {} });
+    loadOfficer();
+  };
+
+  function loadOfficer() {
+    const code = localStorage.getItem("currentCode");
+    if (!code) return;
+
+    const data = JSON.parse(localStorage.getItem(code));
+    document.getElementById("classCodeDisplay").textContent = code;
+
+    const taskList = document.getElementById("taskList");
+    taskList.innerHTML = "";
+    data.tasks.forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = `${t.title} (${t.points} pts)`;
+      taskList.appendChild(li);
+    });
+
+    const photoBox = document.getElementById("photoSubmissions");
+    photoBox.innerHTML = "";
+
+    data.students.forEach(s => {
+      Object.entries(s.photos).forEach(([i, photo]) => {
+        const div = document.createElement("div");
+        div.className = "photoCard";
+        div.innerHTML = `<strong>${s.name}</strong><br>${data.tasks[i]?.title}<br>`;
+        const img = document.createElement("img");
+        img.src = photo;
+        img.style.maxWidth = "200px";
+        div.appendChild(img);
+        photoBox.appendChild(div);
+      });
+    });
+  }
+
+  /* =====================
+     STUDENT
+  ===================== */
+  function loadStudent() {
+    const code = localStorage.getItem("currentCode");
+    const name = localStorage.getItem("currentUser");
+    if (!code || !name) return;
+
+    const data = JSON.parse(localStorage.getItem(code));
+    const student = data.students.find(s => s.name === name);
+    if (!student) return;
+
+    document.getElementById("studentName").textContent = name;
+
+    const list = document.getElementById("studentTasks");
+    list.innerHTML = "";
+
+    data.tasks.forEach((t, i) => {
+      const li = document.createElement("li");
+      li.textContent = `${t.title} (${t.points} pts)`;
+
+      if (student.completed.includes(i)) {
+        li.classList.add("completed");
+      } else {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.onchange = e => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            student.photos[i] = reader.result;
+            student.completed.push(i);
+            student.points += t.points;
+            localStorage.setItem(code, JSON.stringify(data));
+            loadStudent();
+          };
+          reader.readAsDataURL(e.target.files[0]);
+        };
+
+        li.appendChild(input);
       }
 
-      localStorage.setItem(code, JSON.stringify(data));
-      window.location.href = "student.html";
-    } else {
-      window.location.href = "officer.html";
-    }
-  };
-}
+      list.appendChild(li);
+    });
+  }
 
-/* ===== OFFICER ===== */
-window.addTask = function () {
-  const code = localStorage.getItem("currentCode");
-  const data = JSON.parse(localStorage.getItem(code));
+  /* =====================
+     LEADERBOARD
+  ===================== */
+  function loadLeaderboard() {
+    const code = localStorage.getItem("currentCode");
+    if (!code) return;
 
-  data.tasks.push({
-    title: taskTitle.value,
-    points: Number(taskPoints.value)
-  });
+    const data = JSON.parse(localStorage.getItem(code));
 
-  localStorage.setItem(code, JSON.stringify(data));
-  loadOfficer();
-};
+    ["6", "7", "8"].forEach(g => {
+      const list = document.getElementById("grade" + g);
+      if (!list) return;
 
-function loadOfficer() {
-  const code = localStorage.getItem("currentCode");
-  const data = JSON.parse(localStorage.getItem(code));
+      list.innerHTML = "";
+      data.students
+        .filter(s => s.grade === g)
+        .sort((a, b) => b.points - a.points)
+        .forEach(s => {
+          const li = document.createElement("li");
+          li.textContent = `${s.name} — ${s.points} pts`;
+          list.appendChild(li);
+        });
+    });
+  }
 
-  classCodeDisplay.textContent = code;
-  taskList.innerHTML = "";
-
-  data.tasks.forEach(t => {
-    const li = document.createElement("li");
-    li.textContent = `${t.title} (${t.points} pts)`;
-    taskList.appendChild(li);
-  });
-
-  photoSubmissions.innerHTML = "";
-  data.students.forEach(s => {
-    for (let i in s.photos) {
-      const div = document.createElement("div");
-      div.className = "photoCard";
-      div.innerHTML = `<strong>${s.name}</strong><br>${data.tasks[i].title}<br>`;
-      const img = document.createElement("img");
-      img.src = s.photos[i];
-      img.style.maxWidth = "200px";
-      div.appendChild(img);
-      photoSubmissions.appendChild(div);
-    }
-  });
-}
-
-/* ===== STUDENT ===== */
-function loadStudent() {
-  const code = localStorage.getItem("currentCode");
-  const name = localStorage.getItem("currentUser");
-  const data = JSON.parse(localStorage.getItem(code));
-  const student = data.students.find(s => s.name === name);
-
-  studentName.textContent = name;
-  studentTasks.innerHTML = "";
-
-  data.tasks.forEach((t, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${t.title} (${t.points} pts)`;
-
-    if (student.completed.includes(i)) {
-      li.classList.add("completed");
-    } else {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.onchange = e => {
-        const r = new FileReader();
-        r.onload = () => {
-          student.photos[i] = r.result;
-          student.completed.push(i);
-          student.points += t.points;
-          localStorage.setItem(code, JSON.stringify(data));
-          loadStudent();
-        };
-        r.readAsDataURL(e.target.files[0]);
-      };
-      li.appendChild(input);
-    }
-
-    studentTasks.appendChild(li);
-  });
-}
-
-/* ===== LEADERBOARD ===== */
-function loadLeaderboard() {
-  const code = localStorage.getItem("currentCode");
-  const data = JSON.parse(localStorage.getItem(code));
-
-  ["6","7","8"].forEach(g => {
-    const list = document.getElementById("grade"+g);
-    if (!list) return;
-    list.innerHTML = "";
-    data.students.filter(s=>s.grade===g)
-      .sort((a,b)=>b.points-a.points)
-      .forEach(s=>{
-        const li=document.createElement("li");
-        li.textContent=`${s.name} — ${s.points} pts`;
-        list.appendChild(li);
-      });
-  });
-}
-
-/* ===== AUTO LOAD ===== */
-if (document.getElementById("taskList")) loadOfficer();
-if (document.getElementById("studentTasks")) loadStudent();
-if (document.getElementById("grade6")) loadLeaderboard();
+  /* =====================
+     AUTO LOAD
+  ===================== */
+  if (document.getElementById("taskList")) loadOfficer();
+  if (document.getElementById("studentTasks")) loadStudent();
+  if (document.getElementById("grade6")) loadLeaderboard();
 
 });
