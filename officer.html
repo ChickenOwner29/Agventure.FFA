@@ -9,23 +9,27 @@
 
 <h1>Officer Dashboard</h1>
 
-<p><strong>Class Code:</strong> <span id="classCodeDisplay"></span></p>
-<p><strong>Students Registered:</strong> <span id="studentCount"></span></p>
+<h2>Class Code: <span id="classCodeDisplay"></span></h2>
+<p>Students Registered: <span id="studentCount"></span></p>
 
-<h2>Create Task</h2>
-<input id="taskTitle" placeholder="Task title">
-<input id="taskPoints" type="number" placeholder="Points">
+<hr>
+
+<h2>Add New Task</h2>
+<input type="text" id="taskTitle" placeholder="Task name">
+<input type="number" id="taskPoints" placeholder="Points">
 <button onclick="addTask()">Add Task</button>
 
-<h2>Tasks</h2>
+<h2>Current Tasks</h2>
 <ul id="taskList"></ul>
 
-<h2>Photo Submissions</h2>
+<hr>
+
+<h2>Student Photo Submissions</h2>
 <div id="photoSubmissions"></div>
 
 <br>
 <a href="leaderboard.html">View Leaderboard</a>
 
-<script src="app.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
