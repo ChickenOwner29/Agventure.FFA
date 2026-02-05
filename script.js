@@ -1,39 +1,38 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
 
-  /* =====================
-     LOGIN
-  ===================== */
-  const loginForm = document.getElementById("loginForm");
-  const roleSelect = document.getElementById("role");
-  const gradeBox = document.getElementById("gradeBox");
+  // ---------------------------
+  // LOGIN PAGE
+  // ---------------------------
+  var loginForm = document.getElementById("loginForm");
+  var roleSelect = document.getElementById("role");
+  var gradeBox = document.getElementById("gradeBox");
 
   if (roleSelect) {
-    roleSelect.addEventListener("change", () => {
+    roleSelect.addEventListener("change", function() {
       gradeBox.style.display = roleSelect.value === "student" ? "block" : "none";
     });
   }
 
   if (loginForm) {
-    loginForm.addEventListener("submit", e => {
+    loginForm.addEventListener("submit", function(e) {
       e.preventDefault();
 
-      // grab inputs
-      const nameInput = document.getElementById("name");
-      const roleInput = document.getElementById("role");
-      const codeInput = document.getElementById("classCode");
-      const gradeInput = document.getElementById("grade");
+      var nameInput = document.getElementById("name");
+      var roleInput = document.getElementById("role");
+      var codeInput = document.getElementById("classCode");
+      var gradeInput = document.getElementById("grade");
 
-      const name = nameInput.value.trim();
-      const role = roleInput.value;
-      const code = codeInput.value.trim();
-      const grade = gradeInput ? gradeInput.value : null;
+      var name = nameInput.value.trim();
+      var role = roleInput.value;
+      var code = codeInput.value.trim();
+      var grade = gradeInput ? gradeInput.value : null;
 
       if (!name || !role || !code) {
         alert("Please fill out all required fields.");
         return;
       }
 
-      // save session
+      // Save user info
       localStorage.setItem("currentUser", name);
       localStorage.setItem("currentRole", role);
       localStorage.setItem("currentCode", code);
@@ -42,15 +41,15 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(code, JSON.stringify({ tasks: [], students: [] }));
       }
 
-      const data = JSON.parse(localStorage.getItem(code));
+      var data = JSON.parse(localStorage.getItem(code));
 
       if (role === "student") {
         if (!grade) {
           alert("Please select your grade.");
           return;
         }
-        if (!data.students.find(s => s.name === name)) {
-          data.students.push({ name, grade, points: 0, completed: [], photos: {} });
+        if (!data.students.find(function(s){ return s.name === name; })) {
+          data.students.push({ name: name, grade: grade, points: 0, completed: [], photos: {} });
         }
         localStorage.setItem(code, JSON.stringify(data));
         window.location.href = "student.html";
@@ -60,56 +59,63 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* =====================
-     OFFICER
-  ===================== */
-  window.addTask = function () {
-    const code = localStorage.getItem("currentCode");
+  // ---------------------------
+  // OFFICER PAGE
+  // ---------------------------
+  window.addTask = function() {
+    var code = localStorage.getItem("currentCode");
     if (!code) return;
 
-    const title = document.getElementById("taskTitle").value.trim();
-    const points = Number(document.getElementById("taskPoints").value);
+    var titleInput = document.getElementById("taskTitle");
+    var pointsInput = document.getElementById("taskPoints");
+
+    var title = titleInput.value.trim();
+    var points = Number(pointsInput.value);
 
     if (!title || isNaN(points) || points <= 0) {
       alert("Enter valid task name and points.");
       return;
     }
 
-    const data = JSON.parse(localStorage.getItem(code));
-    data.tasks.push({ title, points });
+    var data = JSON.parse(localStorage.getItem(code));
+    data.tasks.push({ title: title, points: points });
     localStorage.setItem(code, JSON.stringify(data));
 
-    document.getElementById("taskTitle").value = "";
-    document.getElementById("taskPoints").value = "";
+    titleInput.value = "";
+    pointsInput.value = "";
 
     loadOfficer();
   };
 
   function loadOfficer() {
-    const code = localStorage.getItem("currentCode");
+    var code = localStorage.getItem("currentCode");
     if (!code) return;
 
-    const data = JSON.parse(localStorage.getItem(code));
-    const taskList = document.getElementById("taskList");
+    var data = JSON.parse(localStorage.getItem(code));
+
+    // Show tasks
+    var taskList = document.getElementById("taskList");
     if (taskList) {
       taskList.innerHTML = "";
-      data.tasks.forEach(t => {
-        const li = document.createElement("li");
-        li.textContent = `${t.title} (${t.points} pts)`;
+      data.tasks.forEach(function(t) {
+        var li = document.createElement("li");
+        li.textContent = t.title + " (" + t.points + " pts)";
         taskList.appendChild(li);
       });
     }
 
-    const photoBox = document.getElementById("photoSubmissions");
+    // Show student photos
+    var photoBox = document.getElementById("photoSubmissions");
     if (photoBox) {
       photoBox.innerHTML = "";
-      data.students.forEach(s => {
-        Object.entries(s.photos).forEach(([i, photo]) => {
-          const div = document.createElement("div");
+      data.students.forEach(function(s) {
+        Object.keys(s.photos).forEach(function(i) {
+          var div = document.createElement("div");
           div.className = "photoCard";
-          div.innerHTML = `<strong>${s.name}</strong><br>${data.tasks[i]?.title}<br>`;
-          const img = document.createElement("img");
-          img.src = photo;
+          var titleText = data.tasks[i] ? data.tasks[i].title : "";
+          div.innerHTML = "<strong>" + s.name + "</strong><br>" + titleText + "<br>";
+          var img = document.createElement("img");
+          img.src = s.photos[i];
           img.style.maxWidth = "200px";
           div.appendChild(img);
           photoBox.appendChild(div);
@@ -117,41 +123,41 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    const codeDisplay = document.getElementById("classCodeDisplay");
+    var codeDisplay = document.getElementById("classCodeDisplay");
     if (codeDisplay) codeDisplay.textContent = code;
   }
 
-  /* =====================
-     STUDENT
-  ===================== */
+  // ---------------------------
+  // STUDENT PAGE
+  // ---------------------------
   function loadStudent() {
-    const code = localStorage.getItem("currentCode");
-    const name = localStorage.getItem("currentUser");
+    var code = localStorage.getItem("currentCode");
+    var name = localStorage.getItem("currentUser");
     if (!code || !name) return;
 
-    const data = JSON.parse(localStorage.getItem(code));
-    const student = data.students.find(s => s.name === name);
+    var data = JSON.parse(localStorage.getItem(code));
+    var student = data.students.find(function(s){ return s.name === name; });
     if (!student) return;
 
-    const studentNameEl = document.getElementById("studentName");
+    var studentNameEl = document.getElementById("studentName");
     if (studentNameEl) studentNameEl.textContent = name;
 
-    const list = document.getElementById("studentTasks");
+    var list = document.getElementById("studentTasks");
     if (list) {
       list.innerHTML = "";
-      data.tasks.forEach((t, i) => {
-        const li = document.createElement("li");
-        li.textContent = `${t.title} (${t.points} pts)`;
+      data.tasks.forEach(function(t, i) {
+        var li = document.createElement("li");
+        li.textContent = t.title + " (" + t.points + " pts)";
 
         if (student.completed.includes(i)) {
           li.classList.add("completed");
         } else {
-          const input = document.createElement("input");
+          var input = document.createElement("input");
           input.type = "file";
           input.accept = "image/*";
-          input.onchange = e => {
-            const reader = new FileReader();
-            reader.onload = () => {
+          input.addEventListener("change", function(e) {
+            var reader = new FileReader();
+            reader.onload = function() {
               student.photos[i] = reader.result;
               student.completed.push(i);
               student.points += t.points;
@@ -159,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
               loadStudent();
             };
             reader.readAsDataURL(e.target.files[0]);
-          };
+          });
           li.appendChild(input);
         }
 
@@ -168,32 +174,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* =====================
-     LEADERBOARD
-  ===================== */
+  // ---------------------------
+  // LEADERBOARD
+  // ---------------------------
   function loadLeaderboard() {
-    const code = localStorage.getItem("currentCode");
+    var code = localStorage.getItem("currentCode");
     if (!code) return;
 
-    const data = JSON.parse(localStorage.getItem(code));
-    ["6","7","8"].forEach(grade => {
-      const list = document.getElementById("grade"+grade);
+    var data = JSON.parse(localStorage.getItem(code));
+    ["6","7","8"].forEach(function(grade){
+      var list = document.getElementById("grade"+grade);
       if (!list) return;
       list.innerHTML = "";
       data.students
-        .filter(s => s.grade === grade)
-        .sort((a,b) => b.points - a.points)
-        .forEach(s => {
-          const li = document.createElement("li");
-          li.textContent = `${s.name} — ${s.points} pts`;
+        .filter(function(s){ return s.grade === grade; })
+        .sort(function(a,b){ return b.points - a.points; })
+        .forEach(function(s){
+          var li = document.createElement("li");
+          li.textContent = s.name + " — " + s.points + " pts";
           list.appendChild(li);
         });
     });
   }
 
-  /* =====================
-     AUTO LOAD
-  ===================== */
+  // ---------------------------
+  // AUTO LOAD
+  // ---------------------------
   if (document.getElementById("taskList")) loadOfficer();
   if (document.getElementById("studentTasks")) loadStudent();
   if (document.getElementById("grade6")) loadLeaderboard();
