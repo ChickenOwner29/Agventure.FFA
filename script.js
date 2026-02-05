@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-  // ---------------------------
   // LOGIN PAGE
-  // ---------------------------
   var loginForm = document.getElementById("loginForm");
   var roleSelect = document.getElementById("role");
   var gradeBox = document.getElementById("gradeBox");
@@ -32,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
       }
 
-      // Save user info
       localStorage.setItem("currentUser", name);
       localStorage.setItem("currentRole", role);
       localStorage.setItem("currentCode", code);
@@ -59,9 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // ---------------------------
-  // OFFICER PAGE
-  // ---------------------------
+  // OFFICER FUNCTIONS
   window.addTask = function() {
     var code = localStorage.getItem("currentCode");
     if (!code) return;
@@ -93,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var data = JSON.parse(localStorage.getItem(code));
 
-    // Show tasks
+    // Tasks
     var taskList = document.getElementById("taskList");
     if (taskList) {
       taskList.innerHTML = "";
@@ -104,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     }
 
-    // Show student photos
+    // Photos
     var photoBox = document.getElementById("photoSubmissions");
     if (photoBox) {
       photoBox.innerHTML = "";
@@ -112,8 +107,8 @@ document.addEventListener("DOMContentLoaded", function() {
         Object.keys(s.photos).forEach(function(i) {
           var div = document.createElement("div");
           div.className = "photoCard";
-          var titleText = data.tasks[i] ? data.tasks[i].title : "";
-          div.innerHTML = "<strong>" + s.name + "</strong><br>" + titleText + "<br>";
+          var taskTitle = data.tasks[i] ? data.tasks[i].title : "";
+          div.innerHTML = "<strong>" + s.name + "</strong><br>" + taskTitle + "<br>";
           var img = document.createElement("img");
           img.src = s.photos[i];
           img.style.maxWidth = "200px";
@@ -125,11 +120,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var codeDisplay = document.getElementById("classCodeDisplay");
     if (codeDisplay) codeDisplay.textContent = code;
+
+    loadLeaderboard();
   }
 
-  // ---------------------------
   // STUDENT PAGE
-  // ---------------------------
   function loadStudent() {
     var code = localStorage.getItem("currentCode");
     var name = localStorage.getItem("currentUser");
@@ -163,6 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
               student.points += t.points;
               localStorage.setItem(code, JSON.stringify(data));
               loadStudent();
+              loadLeaderboard();
             };
             reader.readAsDataURL(e.target.files[0]);
           });
@@ -172,11 +168,11 @@ document.addEventListener("DOMContentLoaded", function() {
         list.appendChild(li);
       });
     }
+
+    loadLeaderboard();
   }
 
-  // ---------------------------
   // LEADERBOARD
-  // ---------------------------
   function loadLeaderboard() {
     var code = localStorage.getItem("currentCode");
     if (!code) return;
@@ -197,9 +193,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // ---------------------------
   // AUTO LOAD
-  // ---------------------------
   if (document.getElementById("taskList")) loadOfficer();
   if (document.getElementById("studentTasks")) loadStudent();
   if (document.getElementById("grade6")) loadLeaderboard();
