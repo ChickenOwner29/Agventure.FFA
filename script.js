@@ -9,10 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (roleSelect) {
     roleSelect.addEventListener("change", () => {
-      if (gradeBox) {
-        gradeBox.style.display =
-          roleSelect.value === "student" ? "block" : "none";
-      }
+      gradeBox.style.display = roleSelect.value === "student" ? "block" : "none";
     });
   }
 
@@ -76,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =====================
-     OFFICER
+     OFFICER DASHBOARD
   ===================== */
   window.addTask = function () {
     const code = localStorage.getItem("currentCode");
@@ -85,8 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const title = document.getElementById("taskTitle").value.trim();
     const points = Number(document.getElementById("taskPoints").value);
 
-    if (!title || !points) {
-      alert("Enter task name and points.");
+    if (!title || isNaN(points) || points <= 0) {
+      alert("Enter valid task name and points.");
       return;
     }
 
@@ -105,35 +102,39 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!code) return;
 
     const data = JSON.parse(localStorage.getItem(code));
-    document.getElementById("classCodeDisplay").textContent = code;
-
     const taskList = document.getElementById("taskList");
-    taskList.innerHTML = "";
-    data.tasks.forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = `${t.title} (${t.points} pts)`;
-      taskList.appendChild(li);
-    });
+    if (taskList) {
+      taskList.innerHTML = "";
+      data.tasks.forEach((t, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${t.title} (${t.points} pts)`;
+        taskList.appendChild(li);
+      });
+    }
 
     const photoBox = document.getElementById("photoSubmissions");
-    photoBox.innerHTML = "";
-
-    data.students.forEach(s => {
-      Object.entries(s.photos).forEach(([i, photo]) => {
-        const div = document.createElement("div");
-        div.className = "photoCard";
-        div.innerHTML = `<strong>${s.name}</strong><br>${data.tasks[i]?.title}<br>`;
-        const img = document.createElement("img");
-        img.src = photo;
-        img.style.maxWidth = "200px";
-        div.appendChild(img);
-        photoBox.appendChild(div);
+    if (photoBox) {
+      photoBox.innerHTML = "";
+      data.students.forEach(s => {
+        Object.entries(s.photos).forEach(([i, photo]) => {
+          const div = document.createElement("div");
+          div.className = "photoCard";
+          div.innerHTML = `<strong>${s.name}</strong><br>${data.tasks[i]?.title}<br>`;
+          const img = document.createElement("img");
+          img.src = photo;
+          img.style.maxWidth = "200px";
+          div.appendChild(img);
+          photoBox.appendChild(div);
+        });
       });
-    });
+    }
+
+    const codeDisplay = document.getElementById("classCodeDisplay");
+    if (codeDisplay) codeDisplay.textContent = code;
   }
 
   /* =====================
-     STUDENT
+     STUDENT TASKS
   ===================== */
   function loadStudent() {
     const code = localStorage.getItem("currentCode");
@@ -144,39 +145,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const student = data.students.find(s => s.name === name);
     if (!student) return;
 
-    document.getElementById("studentName").textContent = name;
+    const studentNameEl = document.getElementById("studentName");
+    if (studentNameEl) studentNameEl.textContent = name;
 
     const list = document.getElementById("studentTasks");
-    list.innerHTML = "";
+    if (list) {
+      list.innerHTML = "";
+      data.tasks.forEach((t, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${t.title} (${t.points} pts)`;
 
-    data.tasks.forEach((t, i) => {
-      const li = document.createElement("li");
-      li.textContent = `${t.title} (${t.points} pts)`;
-
-      if (student.completed.includes(i)) {
-        li.classList.add("completed");
-      } else {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-
-        input.onchange = e => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            student.photos[i] = reader.result;
-            student.completed.push(i);
-            student.points += t.points;
-            localStorage.setItem(code, JSON.stringify(data));
-            loadStudent();
+        if (student.completed.includes(i)) {
+          li.classList.add("completed");
+        } else {
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "image/*";
+          input.onchange = e => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              student.photos[i] = reader.result;
+              student.completed.push(i);
+              student.points += t.points;
+              localStorage.setItem(code, JSON.stringify(data));
+              loadStudent();
+            };
+            reader.readAsDataURL(e.target.files[0]);
           };
-          reader.readAsDataURL(e.target.files[0]);
-        };
+          li.appendChild(input);
+        }
 
-        li.appendChild(input);
-      }
-
-      list.appendChild(li);
-    });
+        list.appendChild(li);
+      });
+    }
   }
 
   /* =====================
@@ -187,15 +188,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!code) return;
 
     const data = JSON.parse(localStorage.getItem(code));
-
-    ["6", "7", "8"].forEach(g => {
-      const list = document.getElementById("grade" + g);
+    ["6","7","8"].forEach(grade => {
+      const list = document.getElementById("grade"+grade);
       if (!list) return;
-
       list.innerHTML = "";
       data.students
-        .filter(s => s.grade === g)
-        .sort((a, b) => b.points - a.points)
+        .filter(s => s.grade === grade)
+        .sort((a,b) => b.points - a.points)
         .forEach(s => {
           const li = document.createElement("li");
           li.textContent = `${s.name} — ${s.points} pts`;
