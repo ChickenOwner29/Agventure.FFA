@@ -2,35 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Student Points Login</title>
+  <title>Login</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Student Points System</h1>
 
-  <form id="loginForm">
-    <label>Role:</label>
-    <select id="role" required>
-      <option value="">Select</option>
-      <option value="officer">Officer</option>
-      <option value="student">Student</option>
+<h1>Student Points Login</h1>
+
+<form id="loginForm">
+  <label>Role</label>
+  <select id="role" required>
+    <option value="">Select</option>
+    <option value="officer">Officer</option>
+    <option value="student">Student</option>
+  </select>
+
+  <label>Class Code</label>
+  <input type="text" id="classCode" required>
+
+  <div id="gradeBox" style="display:none;">
+    <label>Grade</label>
+    <select id="grade">
+      <option value="6">6th Grade</option>
+      <option value="7">7th Grade</option>
+      <option value="8">8th Grade</option>
     </select>
+  </div>
 
-    <label>Class Code:</label>
-    <input type="text" id="classCode" required>
+  <button type="submit">Continue</button>
+</form>
 
-    <div id="gradeBox" style="display:none;">
-      <label>Grade:</label>
-      <select id="grade">
-        <option value="6">6th Grade</option>
-        <option value="7">7th Grade</option>
-        <option value="8">8th Grade</option>
-      </select>
-    </div>
-
-    <button type="submit">Continue</button>
-  </form>
-
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
