@@ -1,13 +1,12 @@
 /* =====================
-   LOGIN PAGE LOGIC
+   LOGIN
 ===================== */
 const roleSelect = document.getElementById("role");
 const gradeBox = document.getElementById("gradeBox");
 
 if (roleSelect) {
   roleSelect.addEventListener("change", () => {
-    gradeBox.style.display =
-      roleSelect.value === "student" ? "block" : "none";
+    gradeBox.style.display = roleSelect.value === "student" ? "block" : "none";
   });
 }
 
@@ -22,7 +21,7 @@ if (loginForm) {
     const grade = document.getElementById("grade")?.value;
 
     if (!name || !role || !code) {
-      alert("Please fill out all fields.");
+      alert("Fill out all fields.");
       return;
     }
 
@@ -30,7 +29,6 @@ if (loginForm) {
     localStorage.setItem("currentRole", role);
     localStorage.setItem("currentCode", code);
 
-    // Create class if it doesn't exist
     if (!localStorage.getItem(code)) {
       localStorage.setItem(code, JSON.stringify({
         tasks: [],
@@ -41,7 +39,6 @@ if (loginForm) {
     if (role === "student") {
       const data = JSON.parse(localStorage.getItem(code));
 
-      // Prevent duplicate student names
       if (!data.students.find(s => s.name === name)) {
         data.students.push({
           name,
@@ -64,17 +61,12 @@ if (loginForm) {
    OFFICER DASHBOARD
 ===================== */
 function addTask() {
-  const titleInput = document.getElementById("taskTitle");
-  const pointsInput = document.getElementById("taskPoints");
-
-  if (!titleInput || !pointsInput) return;
-
-  const title = titleInput.value.trim();
-  const points = parseInt(pointsInput.value);
+  const title = document.getElementById("taskTitle").value.trim();
+  const points = parseInt(document.getElementById("taskPoints").value);
   const code = localStorage.getItem("currentCode");
 
   if (!title || isNaN(points)) {
-    alert("Enter a task name and points.");
+    alert("Enter task name and points.");
     return;
   }
 
@@ -82,76 +74,68 @@ function addTask() {
   data.tasks.push({ title, points });
   localStorage.setItem(code, JSON.stringify(data));
 
-  titleInput.value = "";
-  pointsInput.value = "";
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskPoints").value = "";
 
   loadOfficerDashboard();
 }
 
 function loadOfficerDashboard() {
   const code = localStorage.getItem("currentCode");
-  if (!code) return;
-
   const data = JSON.parse(localStorage.getItem(code));
-  if (!data) return;
 
-  const codeDisplay = document.getElementById("classCodeDisplay");
-  const studentCount = document.getElementById("studentCount");
+  document.getElementById("classCodeDisplay").textContent = code;
+
   const taskList = document.getElementById("taskList");
+  taskList.innerHTML = "";
+  data.tasks.forEach(t => {
+    const li = document.createElement("li");
+    li.textContent = `${t.title} (${t.points} pts)`;
+    taskList.appendChild(li);
+  });
+
   const photoBox = document.getElementById("photoSubmissions");
+  photoBox.innerHTML = "";
 
-  if (codeDisplay) codeDisplay.textContent = code;
-  if (studentCount) studentCount.textContent = data.students.length;
+  data.students.forEach(student => {
+    Object.entries(student.photos).forEach(([taskIndex, photo]) => {
+      const div = document.createElement("div");
+      div.className = "photoCard";
 
-  if (taskList) {
-    taskList.innerHTML = "";
-    data.tasks.forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = `${t.title} (${t.points} pts)`;
-      taskList.appendChild(li);
+      div.innerHTML = `
+        <strong>${student.name}</strong>
+        <br>
+        <em>${data.tasks[taskIndex]?.title || "Task"}</em>
+        <br>
+      `;
+
+      const img = document.createElement("img");
+      img.src = photo;
+      img.style.maxWidth = "200px";
+
+      div.appendChild(img);
+      photoBox.appendChild(div);
     });
-  }
-
-  if (photoBox) {
-    photoBox.innerHTML = "";
-    data.students.forEach(s => {
-      Object.entries(s.photos).forEach(([taskIndex, photo]) => {
-        const div = document.createElement("div");
-        div.innerHTML = `<strong>${s.name}</strong><br>`;
-        const img = document.createElement("img");
-        img.src = photo;
-        div.appendChild(img);
-        photoBox.appendChild(div);
-      });
-    });
-  }
+  });
 }
 
 /* =====================
-   STUDENT TASK PAGE
+   STUDENT TASKS
 ===================== */
 function loadStudentTasks() {
   const code = localStorage.getItem("currentCode");
   const name = localStorage.getItem("currentUser");
 
-  if (!code || !name) return;
-
   const data = JSON.parse(localStorage.getItem(code));
-  if (!data || !data.tasks) return;
-
   const student = data.students.find(s => s.name === name);
-  if (!student) return;
 
-  const nameDisplay = document.getElementById("studentName");
-  if (nameDisplay) nameDisplay.textContent = name;
+  document.getElementById("studentName").textContent = name;
 
   const list = document.getElementById("studentTasks");
-  if (!list) return;
-
   list.innerHTML = "";
 
   if (data.tasks.length === 0) {
-    list.innerHTML = "<li>No tasks yet. Check back soon!</li>";
+    list.innerHTML = "<li>No tasks yet.</li>";
     return;
   }
 
@@ -178,6 +162,7 @@ function loadStudentTasks() {
 
           localStorage.setItem(code, JSON.stringify(data));
           loadStudentTasks();
+          loadLeaderboard();
         };
         reader.readAsDataURL(file);
       };
@@ -191,37 +176,35 @@ function loadStudentTasks() {
 }
 
 /* =====================
-   LEADERBOARD
+   LEADERBOARD (PER CODE)
 ===================== */
-function loadLeaderboard(grade, elementId) {
-  const list = document.getElementById(elementId);
-  if (!list) return;
+function loadLeaderboard() {
+  const code = localStorage.getItem("currentCode");
+  const role = localStorage.getItem("currentRole");
 
-  list.innerHTML = "";
+  const data = JSON.parse(localStorage.getItem(code));
+  if (!data) return;
 
-  Object.keys(localStorage).forEach(key => {
-    try {
-      const data = JSON.parse(localStorage.getItem(key));
-      if (!data.students) return;
+  ["6", "7", "8"].forEach(grade => {
+    const list = document.getElementById(`grade${grade}`);
+    if (!list) return;
 
-      data.students
-        .filter(s => s.grade === grade)
-        .sort((a, b) => b.points - a.points)
-        .forEach(s => {
-          const li = document.createElement("li");
-          li.textContent = `${s.name} — ${s.points} pts`;
-          list.appendChild(li);
-        });
-    } catch {}
+    list.innerHTML = "";
+
+    data.students
+      .filter(s => s.grade === grade)
+      .sort((a, b) => b.points - a.points)
+      .forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = `${s.name} — ${s.points} pts`;
+        list.appendChild(li);
+      });
   });
 }
 
 /* =====================
-   AUTO LOAD BY PAGE
+   AUTO LOAD
 ===================== */
 if (document.getElementById("taskList")) loadOfficerDashboard();
 if (document.getElementById("studentTasks")) loadStudentTasks();
-
-loadLeaderboard("6", "grade6");
-loadLeaderboard("7", "grade7");
-loadLeaderboard("8", "grade8");
+if (document.getElementById("grade6")) loadLeaderboard();
